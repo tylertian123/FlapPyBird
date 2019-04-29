@@ -189,6 +189,7 @@ def showWelcomeAnimation():
 pipeNumber = 0
 
 def mainGame(movementInfo):
+    global pipeNumber
     score = playerIndex = loopIter = pipeNumber = 0
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
@@ -320,9 +321,10 @@ def mainGame(movementInfo):
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
+highScore = 0
 
 def showGameOverScreen(crashInfo):
-    """crashes the player down ans shows gameover image"""
+    """crashes the player down and shows gameover image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
@@ -331,6 +333,14 @@ def showGameOverScreen(crashInfo):
     playerAccY = 2
     playerRot = crashInfo['playerRot']
     playerVelRot = 7
+
+    global highScore
+    if score > highScore:
+        highScore = score
+        print("High Score: ", highScore)
+        print("NEW BEST!")
+    else:
+        print("High Score: ", highScore)
 
     basex = crashInfo['basex']
 
