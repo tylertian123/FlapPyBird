@@ -9,7 +9,6 @@ from pygame.locals import *
 FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
-PIPEGAPSIZE  = 125 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
@@ -186,9 +185,11 @@ def showWelcomeAnimation():
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
+# This variable keeps track of the number of the next pipe to be generated.
+pipeNumber = 0
 
 def mainGame(movementInfo):
-    score = playerIndex = loopIter = 0
+    score = playerIndex = loopIter = pipeNumber = 0
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
 
@@ -393,18 +394,26 @@ def playerShm(playerShm):
     else:
         playerShm['val'] -= 1
 
+# This function returns the size of the gap for the pipe with the given number
+# The size of pipe gaps follows an exponential, gradually getting smaller,
+# and asymptoting at 100 to make the game gradually harder 
+def getPipeGap(pipeNumber):
+    return round(1.267 ** -(pipeNumber - 19.6) + 100)
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
     # y of gap between upper and lower pipe
-    gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
+    global pipeNumber
+    pipeGap = getPipeGap(pipeNumber)
+    pipeNumber += 1
+    gapY = random.randrange(0, int(BASEY * 0.6 - pipeGap))
     gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
     pipeX = SCREENWIDTH + 10
 
     return [
         {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
-        {'x': pipeX, 'y': gapY + PIPEGAPSIZE}, # lower pipe
+        {'x': pipeX, 'y': gapY + pipeGap}, # lower pipe
     ]
 
 
