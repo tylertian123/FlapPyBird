@@ -213,17 +213,17 @@ def mainGame(movementInfo):
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
-    pipeVelX = -4
+    pipeVelX = -8
 
     # player velocity, max velocity, downward accleration, accleration on flap
     playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
     playerMaxVelY =  10   # max vel along Y, max descend speed
     playerMinVelY =  -8   # min vel along Y, max ascend speed
     playerAccY    =   1   # players downward accleration
-    playerRot     =  45   # player's rotation
+    playerRot     =  47   # player's rotation
     playerVelRot  =   3   # angular speed
-    playerRotThr  =  20   # rotation threshold
-    playerFlapAcc =  -9   # players speed on flapping
+    playerRotThr  =  21   # rotation threshold
+    playerFlapAcc =  -12   # players speed on flapping
     playerFlapped = False # True when player flaps
 
 
@@ -285,8 +285,8 @@ def mainGame(movementInfo):
 
         # move pipes to left
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            uPipe['x'] += pipeVelX
-            lPipe['x'] += pipeVelX
+            uPipe['x'] += int(random.uniform(pipeVelX - 0.5, pipeVelX + 0.5))
+            lPipe['x'] +=  int(random.uniform(pipeVelX - 0.5, pipeVelX + 0.5))
 
         # add new pipe when first pipe is about to touch left of screen
         if 0 < upperPipes[0]['x'] < 5:
@@ -296,8 +296,9 @@ def mainGame(movementInfo):
 
         # remove first pipe if its out of the screen
         if upperPipes[0]['x'] < -IMAGES['pipe'][0].get_width():
-            upperPipes.pop(0)
-            lowerPipes.pop(0)
+            #upperPipes.pop(0)
+            pass
+            #lowerPipes.pop(0)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
@@ -315,8 +316,8 @@ def mainGame(movementInfo):
         if playerRot <= playerRotThr:
             visibleRot = playerRot
         
-        playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
-        SCREEN.blit(playerSurface, (playerx, playery))
+        playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot * random.random() * 5)
+        SCREEN.blit(playerSurface, (playerx + 10, playery))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -386,7 +387,7 @@ def showGameOverScreen(crashInfo):
         
 
 
-        playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot)
+        playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot * 2 + random.randint(-1, 1))       
         SCREEN.blit(playerSurface, (playerx,playery))
         SCREEN.blit(IMAGES['gameover'], (50, 180))
 
@@ -397,18 +398,18 @@ def showGameOverScreen(crashInfo):
 def playerShm(playerShm):
     """oscillates the value of playerShm['val'] between 8 and -8"""
     if abs(playerShm['val']) == 8:
-        playerShm['dir'] *= -1
+        playerShm['dir'] *= -1  
 
     if playerShm['dir'] == 1:
-         playerShm['val'] += 1
+         playerShm['val'] += 1.2
     else:
-        playerShm['val'] -= 1
+        playerShm['val'] -= 0.5
 
 # This function returns the size of the gap for the pipe with the given number
 # The size of pipe gaps follows an exponential, gradually getting smaller,
 # and asymptoting at 100 to make the game gradually harder 
 def getPipeGap(pipeNumber):
-    return round(1.267 ** -(pipeNumber - 19.6) + 100)
+    return random.randint(150, 200) #return round(1.267 ** -(pipeNumber - 19.6) + 100)
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
