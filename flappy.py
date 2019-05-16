@@ -53,12 +53,28 @@ try:
 except NameError:
     xrange = range
 
+FULLWIDTH = 0
+FULLHEIGHT = 0
+X_OFFSET = 0
+Y_OFFSET = 0
+
+def mask():
+    pygame.draw.rect(SCREEN, (0, 0, 0), (0, 0, FULLWIDTH, Y_OFFSET))
+    pygame.draw.rect(SCREEN, (0, 0, 0), (0, SCREENHEIGHT + Y_OFFSET, FULLWIDTH, Y_OFFSET))
+    pygame.draw.rect(SCREEN, (0, 0, 0), (0, 0, X_OFFSET, FULLHEIGHT))
+    pygame.draw.rect(SCREEN, (0, 0, 0), (SCREENWIDTH + X_OFFSET, 0, X_OFFSET, FULLHEIGHT))
 
 def main():
     global SCREEN, FPSCLOCK
+    global FULLWIDTH, FULLHEIGHT
+    global X_OFFSET
+    global Y_OFFSET
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
-    SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
+    SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    FULLWIDTH, FULLHEIGHT = pygame.display.get_surface().get_size()
+    X_OFFSET = int((FULLWIDTH - SCREENWIDTH) / 2)
+    Y_OFFSET = int((FULLHEIGHT - SCREENHEIGHT) / 2)
     pygame.display.set_caption('Flappy Bird')
 
     # numbers sprites for score display
@@ -132,7 +148,6 @@ def main():
         crashInfo = mainGame(movementInfo)
         showGameOverScreen(crashInfo)
 
-
 def showWelcomeAnimation():
     """Shows welcome screen animation of flappy bird"""
     # index of player to blit on screen
@@ -176,12 +191,13 @@ def showWelcomeAnimation():
         playerShm(playerShmVals)
 
         # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
+        SCREEN.blit(IMAGES['background'], (X_OFFSET,Y_OFFSET))
         SCREEN.blit(IMAGES['player'][playerIndex],
-                    (playerx, playery + playerShmVals['val']))
-        SCREEN.blit(IMAGES['message'], (messagex, messagey))
-        SCREEN.blit(IMAGES['base'], (basex, BASEY))
+                    (playerx + X_OFFSET, playery + playerShmVals['val'] + Y_OFFSET))
+        SCREEN.blit(IMAGES['message'], (messagex + X_OFFSET, messagey + Y_OFFSET))
+        SCREEN.blit(IMAGES['base'], (basex + X_OFFSET, BASEY + Y_OFFSET))
 
+        mask()
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
@@ -300,13 +316,13 @@ def mainGame(movementInfo):
             lowerPipes.pop(0)
 
         # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
+        SCREEN.blit(IMAGES['background'], (X_OFFSET, Y_OFFSET))
 
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
+            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'] + X_OFFSET, uPipe['y'] + Y_OFFSET))
+            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'] + X_OFFSET, lPipe['y'] + Y_OFFSET))
 
-        SCREEN.blit(IMAGES['base'], (basex, BASEY))
+        SCREEN.blit(IMAGES['base'], (basex + X_OFFSET, BASEY + Y_OFFSET))
         # print score so player overlaps the score
         showScore(score)
 
@@ -316,8 +332,9 @@ def mainGame(movementInfo):
             visibleRot = playerRot
         
         playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
-        SCREEN.blit(playerSurface, (playerx, playery))
+        SCREEN.blit(playerSurface, (playerx + X_OFFSET, playery + Y_OFFSET))
 
+        mask()
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
@@ -374,23 +391,21 @@ def showGameOverScreen(crashInfo):
                 playerRot -= playerVelRot
 
         # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
+        SCREEN.blit(IMAGES['background'], (X_OFFSET,Y_OFFSET))
 
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
+            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'] + X_OFFSET, uPipe['y'] + Y_OFFSET))
+            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'] + X_OFFSET, lPipe['y'] + Y_OFFSET))
 
-        SCREEN.blit(IMAGES['base'], (basex, BASEY))
+        SCREEN.blit(IMAGES['base'], (basex + X_OFFSET, BASEY + Y_OFFSET))
         showScore(score)
 
-        
-
-
         playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot)
-        SCREEN.blit(playerSurface, (playerx,playery))
-        SCREEN.blit(IMAGES['gameover'], (50, 180))
+        SCREEN.blit(playerSurface, (playerx + X_OFFSET,playery + Y_OFFSET))
+        SCREEN.blit(IMAGES['gameover'], (50 + X_OFFSET, 180 + Y_OFFSET))
 
         FPSCLOCK.tick(FPS)
+        mask()
         pygame.display.update()
 
 
@@ -438,7 +453,7 @@ def showScore(score):
     Xoffset = (SCREENWIDTH - totalWidth) / 2
 
     for digit in scoreDigits:
-        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + X_OFFSET, SCREENHEIGHT * 0.1 + Y_OFFSET))
         Xoffset += IMAGES['numbers'][digit].get_width()
 
 
